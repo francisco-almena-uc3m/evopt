@@ -1,4 +1,3 @@
-# evopt.py
 import copy
 import math
 import os
@@ -11,9 +10,9 @@ from typing import Any, Dict, Iterable, List, Optional, Set
 from sklearn.model_selection import KFold
 
 from deap import gp as deap_gp
-from gp_feature_generation.gp_feature_generation import GPFeatureGenerator, OPERATOR_CATALOG
-from ga_feature_selection.ga_feature_selection import GAFeatureSelector
-from model_utils import (
+from evopt.gp_feature_generation.gp_feature_generation import GPFeatureGenerator, OPERATOR_CATALOG
+from evopt.ga_feature_selection.ga_feature_selection import GAFeatureSelector
+from evopt.model_utils import (
     ModelConfig,
     TaskMetric,
     evaluate_models_cv,

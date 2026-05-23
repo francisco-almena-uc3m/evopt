@@ -21,13 +21,14 @@ pip install -r requirements.txt
 ## Running Experiments
 
 Configure `CLASSIFICATION_EXPERIMENTS` and `REGRESSION_EXPERIMENTS` in
-`main.py`, then run:
+`examples/experiment_runner.py`, then run:
 
 ```bash
-python main.py
+python examples/experiment_runner.py
 ```
 
-`main.py` includes the dataset configurations used in the experiments.
+`examples/experiment_runner.py` includes the dataset configurations used in the
+experiments.
 
 Each dataset also has its own script in `examples/`:
 
@@ -59,12 +60,13 @@ report = optimizer.report_final_selection(feature_names)
 
 ## Project Layout
 
-- `evopt.py`: high-level evolutionary optimizer.
-- `ga_feature_selection/`: genetic algorithm feature selector.
-- `gp_feature_generation/`: genetic programming feature generator.
-- `model_utils.py`: model configuration, tuning, metrics, and evaluation helpers.
-- `main.py`: experiment runner and dataset preparation utilities.
-- `examples/`: one executable script per dataset configured in `main.py`.
+- `evopt/`: installable Python package.
+- `evopt/optimizer.py`: high-level evolutionary optimizer.
+- `evopt/ga_feature_selection/`: genetic algorithm feature selector.
+- `evopt/gp_feature_generation/`: genetic programming feature generator.
+- `evopt/model_utils.py`: model configuration, tuning, metrics, and evaluation helpers.
+- `examples/experiment_runner.py`: experiment runner and dataset preparation utilities.
+- `examples/`: one executable script per configured dataset.
 
 ## Notes
 

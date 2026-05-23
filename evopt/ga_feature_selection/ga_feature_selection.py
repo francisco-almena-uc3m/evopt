@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 from sklearn.model_selection import KFold
 
-from model_utils import ModelConfig, TaskMetric, evaluate_models_cv
+from evopt.model_utils import ModelConfig, TaskMetric, evaluate_models_cv
 
 BAD_FITNESS = 1e12
 

@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-import main as experiments
+import experiment_runner as experiments
 
 
 def run_dataset(dataset_key: str, opt_kwargs: Dict[str, Any] | None = None) -> Dict[str, Any]:

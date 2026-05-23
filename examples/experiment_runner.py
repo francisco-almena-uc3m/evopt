@@ -25,7 +25,7 @@ from sklearn.metrics import (
 from sklearn.model_selection import train_test_split
 
 from evopt import EvolutionaryOptimizer
-from model_utils import (
+from evopt.model_utils import (
     ModelConfig,
     TaskMetric,
     get_supported_models,

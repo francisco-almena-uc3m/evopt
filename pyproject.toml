@@ -23,9 +23,8 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest", "ruff"]
 
-[tool.setuptools]
-py-modules = ["evopt", "main", "model_utils"]
-packages = ["ga_feature_selection", "gp_feature_generation"]
+[tool.setuptools.packages.find]
+include = ["evopt*"]
 
 [tool.ruff]
 line-length = 120

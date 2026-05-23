@@ -10,7 +10,7 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 from deap import base, creator, tools, gp
 from sklearn.model_selection import KFold
 
-from model_utils import ModelConfig, TaskMetric, evaluate_models_cv
+from evopt.model_utils import ModelConfig, TaskMetric, evaluate_models_cv
 
 # =========================
 #  PRIMITIVAS PROTEGIDAS (VECTORIALES) + SANEADO
