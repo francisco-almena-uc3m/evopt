@@ -53,6 +53,109 @@ Inputs should be numeric arrays. Encode categorical variables before calling
 to any tabular dataset once you have `X_train`, `y_train`, `X_test`, `y_test`,
 and optional `feature_names`.
 
+## Default Configuration
+
+EVOPT is designed to be useful without tuning every evolutionary parameter. The
+default configuration is intentionally conservative: it uses simple, robust
+model families, bounded GP trees, cross-validation inside GP and GA, automatic
+population-size estimation, separate data splits for GP/GA/final GA, and a final
+GA pass to consolidate the selected feature set.
+
+In many cases, you only need to specify the task, metric, time budget, random
+seed, and optionally the model list. The lower-level GP and GA parameters can be
+left at their defaults until you have a specific reason to change them.
+
+The default optimizer is equivalent to:
+
+```python
+EvolutionaryOptimizer(
+    # Core
+    maxtime=3600,
+    num_iterations=100,
+    random_state=0,
+    alter_random_state=True,
+    verbose=False,
+    task_type="regression",
+    metric_name=None,
+    models=None,
+    standardize=True,
+    model_tuning_cv_folds=5,
+
+    # Data splitting and final selection
+    split_data_between_gp_and_ga=False,
+    split_data_between_gp_and_ga_and_final_ga=True,
+    run_final_ga=True,
+    final_ga_maxtime=600,
+    final_ga_population_size=None,
+    final_ga_num_generations=10,
+    final_ga_patience=5,
+    final_ga_retune_models=False,
+    sticky_selected_features=False,
+
+    # Automatic population sizing
+    estimate_pop_size=True,
+    estimate_pop_seconds=25,
+
+    # GP
+    gp_population_size=None,
+    gp_offspring_size=0.95,
+    gp_elitism_size=0.05,
+    gp_tournament_size=3,
+    gp_init_population_method="grow",
+    gp_num_generations=10,
+    gp_maxtime=300,
+    gp_patience=2,
+    gp_cv_folds=3,
+    gp_num_new_features=None,
+    gp_min_tree_height=1,
+    gp_max_tree_height=2,
+    gp_unary_continuous_operators=("sqrt", "square", "inv", "log"),
+    gp_unary_binary_operators=(),
+    gp_binary_continuous_operators=("add", "sub", "mul", "div", "max", "min"),
+    gp_binary_binary_operators=("max", "min"),
+    gp_binary_mixed_operators=("mul",),
+    gp_root_excluded_operator_set=("add", "sub"),
+    gp_ephemeral_constants=[-3, -2, -1.5, -1, -0.75, -0.5, -0.25,
+                            0, 0.25, 0.5, 1, 1.5, 2, 3],
+    gp_ephemeral_constants_range=None,
+    gp_crossover_probability=1.0,
+    gp_mutation_probability=0.25,
+    gp_mutation_weights=(0.25, 0.25, 0.50),
+    gp_evolve_mutation_weights=True,
+    gp_mutation_weights_end=(0.45, 0.45, 0.10),
+    gp_evolve_mutation_probability=True,
+    gp_mutation_probability_end=0.05,
+    gp_duplicate_corr_threshold=0.7,
+    gp_penalty_mode=None,
+    gp_penalty_coeff=0.0,
+
+    # GA
+    ga_population_size=None,
+    ga_offspring_size=0.95,
+    ga_elitism_size=0.05,
+    ga_tournament_size=3,
+    ga_num_generations=10,
+    ga_maxtime=300,
+    ga_patience=2,
+    ga_cv_folds=3,
+    ga_individual_all_features=True,
+    ga_initial_bit_prob=0.5,
+    ga_mutation_probability=0.25,
+    ga_evolve_mutation_probability=True,
+    ga_mutation_probability_end=0.05,
+    ga_crossover_type="single",
+)
+```
+
+When `models=None`, EVOPT chooses:
+
+```python
+{
+    "regression": ["elastic_net", "decision_tree_regressor"],
+    "classification": ["logistic_regression", "decision_tree_classifier"],
+}
+```
+
 ## Examples
 
 The files in `examples/` are runnable examples, not required entry points. They
@@ -96,6 +199,46 @@ superconduct
 titanic
 wine
 ```
+
+The example files only choose the dataset. The actual optimization keeps the
+default GP/GA configuration unless you pass `opt_kwargs` to `run_dataset`.
+Place snippets like the following inside `examples/`, or adapt the import path
+in your own project.
+
+For example, this is enough for a one-hour experiment on a regression dataset:
+
+```python
+from run_dataset import run_dataset
+
+run_dataset(
+    "california",
+    opt_kwargs={
+        "maxtime": 3600,
+        "random_state": 1,
+        "verbose": True,
+    },
+)
+```
+
+For a classification dataset:
+
+```python
+from run_dataset import run_dataset
+
+run_dataset(
+    "iris",
+    opt_kwargs={
+        "maxtime": 3600,
+        "metric_name": "f1",
+        "random_state": 1,
+        "verbose": True,
+    },
+)
+```
+
+The same pattern applies to your own data: prepare train/test arrays, choose the
+task and metric, set `maxtime=3600`, and leave the GP/GA internals at their
+defaults unless you are running an ablation or a very constrained benchmark.
 
 ## Optimizer Parameters
 
@@ -258,9 +401,10 @@ Optional plots:
 - `plot_feature_evolution_history(feature_names)`
 - `plot_feature_dependency_matrix(feature_names)`
 
-## Recommended Starting Configurations
+## Recommended Starting Points
 
-Fast smoke test:
+The defaults are the recommended starting point for real experiments. For quick
+checks, reduce the time budget and population sizes:
 
 ```python
 EvolutionaryOptimizer(
@@ -275,20 +419,32 @@ EvolutionaryOptimizer(
 )
 ```
 
-Longer experiment:
+For a one-hour run, keep the defaults and specify only the high-level choices:
 
 ```python
 EvolutionaryOptimizer(
     task_type="regression",
+    metric_name="mse",
     maxtime=3600,
-    num_iterations=20,
-    estimate_pop_size=True,
-    run_final_ga=True,
+    random_state=1,
+    verbose=True,
 )
 ```
 
-For classification, set `task_type="classification"` and choose a classification
-metric such as `metric_name="f1"`.
+For classification, switch only the task and metric:
+
+```python
+EvolutionaryOptimizer(
+    task_type="classification",
+    metric_name="f1",
+    maxtime=3600,
+    random_state=1,
+    verbose=True,
+)
+```
+
+Only start changing GP/GA internals when you need a faster benchmark, an
+ablation, or a deliberately different search behavior.
 
 ## Project Layout
 
