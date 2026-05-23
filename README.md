@@ -440,12 +440,13 @@ EvolutionaryOptimizer(
 )
 ```
 
-For quick smoke checks, reduce the time budget and population sizes:
+For quick smoke checks, use a smaller five-minute budget and reduced population
+sizes:
 
 ```python
 EvolutionaryOptimizer(
     task_type="regression",
-    maxtime=120,
+    maxtime=300,
     num_iterations=3,
     estimate_pop_size=False,
     gp_population_size=20,
