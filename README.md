@@ -4,6 +4,19 @@ EVOPT is an evolutionary feature optimization library for tabular machine
 learning. It combines genetic programming (GP) for feature generation with
 genetic algorithms (GA) for feature selection.
 
+The goal is to improve a tabular dataset before fitting downstream machine
+learning models. EVOPT searches for useful mathematical transformations of the
+original variables, keeps the generated features that are actually helpful, and
+selects a compact final feature set containing both original and generated
+features. The search is evaluated with standard supervised models and
+cross-validation, so the generated variables are optimized for predictive
+performance rather than only for statistical correlation.
+
+The library supports regression and classification tasks. It is designed to be
+used like a scikit-learn-style transformer: call `fit` on training data,
+`transform` train/test matrices, and inspect the final selected variables and
+generated expressions with `report_final_selection`.
+
 The public API is:
 
 ```python
