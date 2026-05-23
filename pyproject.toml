@@ -8,8 +8,20 @@ version = "0.1.0"
 description = "Evolutionary feature optimization for tabular machine learning."
 readme = "README.md"
 requires-python = ">=3.10"
+license = { file = "LICENSE" }
 authors = [
     { name = "Francisco Almena" }
+]
+keywords = ["feature-engineering", "feature-selection", "genetic-algorithms", "genetic-programming", "machine-learning"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
     "deap",
@@ -17,11 +29,17 @@ dependencies = [
     "numpy",
     "pandas",
     "scikit-learn",
-    "xgboost",
 ]
 
 [project.optional-dependencies]
+xgboost = ["xgboost"]
+examples = ["xgboost"]
 dev = ["pytest", "ruff"]
+
+[project.urls]
+Homepage = "https://github.com/francisco-almena-uc3m/evopt"
+Repository = "https://github.com/francisco-almena-uc3m/evopt"
+Issues = "https://github.com/francisco-almena-uc3m/evopt/issues"
 
 [tool.setuptools.packages.find]
 include = ["evopt*"]

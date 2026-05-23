@@ -1,5 +1,7 @@
 # EVOPT
 
+[![CI](https://github.com/francisco-almena-uc3m/evopt/actions/workflows/ci.yml/badge.svg)](https://github.com/francisco-almena-uc3m/evopt/actions/workflows/ci.yml)
+
 EVOPT is an evolutionary feature optimization library for tabular machine
 learning. It combines genetic programming (GP) for feature generation with
 genetic algorithms (GA) for feature selection.
@@ -29,6 +31,13 @@ Install the project in editable mode from the repository root:
 
 ```bash
 pip install -e .
+```
+
+To run the example scripts that evaluate XGBoost models, install the examples
+extra:
+
+```bash
+pip install -e ".[examples]"
 ```
 
 Alternatively, install only the dependencies:
@@ -459,11 +468,34 @@ ablation, or a deliberately different search behavior.
 - `examples/`: dataset preparation and runnable examples.
 - `pyproject.toml`: package metadata.
 - `requirements.txt`: dependency list for simple installation.
+- `tests/`: minimal regression smoke tests for the public API.
+- `.github/workflows/ci.yml`: GitHub Actions test workflow.
+
+## Development
+
+Install development dependencies:
+
+```bash
+pip install -e ".[dev]"
+```
+
+Run the test suite:
+
+```bash
+pytest -q
+```
+
+The CI workflow runs the same tests on Python 3.10 and 3.12.
+
+## License
+
+This project is distributed under the MIT License. See `LICENSE`.
 
 ## Notes
 
 - Some example datasets are downloaded from OpenML or external URLs.
 - Large datasets and long configurations can take a long time.
-- XGBoost is included because the experiment runner evaluates XGBoost models.
+- XGBoost is optional for the base package, but required when selecting
+  `xgb_regressor`, `xgb_classifier`, or running the example suite as written.
 - Generated caches, local environments, and experiment outputs are ignored by
   Git through `.gitignore`.
