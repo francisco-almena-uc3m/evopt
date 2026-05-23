@@ -18,24 +18,20 @@ Alternatively, install the dependencies directly:
 pip install -r requirements.txt
 ```
 
-## Running Experiments
+## Examples
 
-Configure `CLASSIFICATION_EXPERIMENTS` and `REGRESSION_EXPERIMENTS` in
-`examples/experiment_runner.py`, then run:
-
-```bash
-python examples/experiment_runner.py
-```
-
-`examples/experiment_runner.py` includes the dataset configurations used in the
-experiments.
-
-Each dataset also has its own script in `examples/`:
+Run any dataset example directly:
 
 ```bash
 python examples/california.py
 python examples/iris.py
 python examples/titanic.py
+```
+
+The full experiment runner used by the examples is available at:
+
+```bash
+python examples/experiment_runner.py
 ```
 
 ## Basic Usage
