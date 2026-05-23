@@ -80,10 +80,10 @@ model families, bounded GP trees, cross-validation inside GP and GA, automatic
 population-size estimation, separate data splits for GP/GA/final GA, and a final
 GA pass to consolidate the selected feature set.
 
-In many cases, you only need to specify the task, metric, time budget, random
-and optionally the model list. Set `random_state` only when you need strict
-reproducibility. The lower-level GP and GA parameters can be left at their
-defaults until you have a specific reason to change them.
+In many cases, you only need to specify the task, metric, time budget, and
+optionally the model list. Set `random_state` only when you need strict
+reproducibility. The lower-level GP, GA, and final GA parameters can be left at
+their defaults until you have a specific reason to change them.
 
 The default optimizer is equivalent to:
 
@@ -101,18 +101,9 @@ EvolutionaryOptimizer(
     standardize=True,
     model_tuning_cv_folds=5,
 
-    # Data splitting and final selection
+    # Data splitting and automatic population sizing
     split_data_between_gp_and_ga=False,
     split_data_between_gp_and_ga_and_final_ga=True,
-    run_final_ga=True,
-    final_ga_maxtime=600,
-    final_ga_population_size=None,
-    final_ga_num_generations=10,
-    final_ga_patience=5,
-    final_ga_retune_models=False,
-    sticky_selected_features=False,
-
-    # Automatic population sizing
     estimate_pop_size=True,
     estimate_pop_seconds=25,
 
@@ -164,6 +155,15 @@ EvolutionaryOptimizer(
     ga_evolve_mutation_probability=True,
     ga_mutation_probability_end=0.05,
     ga_crossover_type="single",
+
+    # Final GA
+    run_final_ga=True,
+    final_ga_maxtime=600,
+    final_ga_population_size=None,
+    final_ga_num_generations=10,
+    final_ga_patience=5,
+    final_ga_retune_models=False,
+    sticky_selected_features=False,
 )
 ```
 
@@ -278,26 +278,13 @@ running an ablation or a very constrained benchmark.
 - `model_tuning_cv_folds`: CV folds for model tuning. Use `None` to skip tuning
   where supported by the current code path.
 
-### Data Splitting
+### Data Splitting and Population Estimation
 
 - `split_data_between_gp_and_ga`: uses separate data splits for GP and GA.
 - `split_data_between_gp_and_ga_and_final_ga`: uses separate splits for GP, GA,
   and final GA. Enabled by default.
-- `run_final_ga`: runs an extended final GA over the retained features.
-- `final_ga_maxtime`: reserved time for final GA.
-- `final_ga_population_size`: population size for final GA. If `None`, EVOPT
-  estimates or derives it.
-- `final_ga_num_generations`: final GA generation limit.
-- `final_ga_patience`: final GA early-stopping patience.
-- `final_ga_retune_models`: retunes models before final GA.
-- `sticky_selected_features`: keeps selected GP features across iterations.
-
-### Population Estimation
-
 - `estimate_pop_size`: estimates GP/GA population sizes automatically.
 - `estimate_pop_seconds`: time budget used for population-size estimation.
-- `gp_population_size`: manual GP population size.
-- `ga_population_size`: manual GA population size.
 
 If `estimate_pop_size=True`, manual GP/GA population sizes can be ignored.
 
@@ -369,6 +356,18 @@ Constants can be controlled with:
   generations.
 - `ga_mutation_probability_end`: final mutation probability.
 - `ga_crossover_type`: crossover strategy, for example `"single"`.
+
+### Final Genetic Algorithm
+
+- `run_final_ga`: runs an extended final GA over the retained features.
+- `final_ga_maxtime`: reserved time for final GA.
+- `final_ga_population_size`: population size for final GA. If `None`, EVOPT
+  estimates or derives it.
+- `final_ga_num_generations`: final GA generation limit.
+- `final_ga_patience`: final GA early-stopping patience.
+- `final_ga_retune_models`: retunes models before final GA.
+- `sticky_selected_features`: keeps selected GP features across iterations
+  before the final selection stage.
 
 ## Supported Models
 

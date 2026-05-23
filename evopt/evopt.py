@@ -75,13 +75,6 @@ class EvolutionaryOptimizer:
         model_tuning_cv_folds: Optional[int] = 5,
         split_data_between_gp_and_ga: bool = False,
         split_data_between_gp_and_ga_and_final_ga: bool = True,
-        run_final_ga: bool = True,
-        final_ga_maxtime: Optional[int] = 600,
-        final_ga_population_size: Optional[int] = None,
-        final_ga_num_generations: int = 10,
-        final_ga_patience: int = 5,
-        final_ga_retune_models: bool = False,
-        sticky_selected_features: bool = False,
         estimate_pop_size: bool = True,
         estimate_pop_seconds: int = 25,
 
@@ -138,6 +131,15 @@ class EvolutionaryOptimizer:
         ga_evolve_mutation_probability: bool = True,
         ga_mutation_probability_end: float = 0.05,
         ga_crossover_type: str = "single",
+
+        # ---------- GA final ----------
+        run_final_ga: bool = True,
+        final_ga_maxtime: Optional[int] = 600,
+        final_ga_population_size: Optional[int] = None,
+        final_ga_num_generations: int = 10,
+        final_ga_patience: int = 5,
+        final_ga_retune_models: bool = False,
+        sticky_selected_features: bool = False,
     ) -> None:
 
         # General
@@ -166,13 +168,6 @@ class EvolutionaryOptimizer:
         self.model_tuning_cv_folds = model_tuning_cv_folds
         self.split_data_between_gp_and_ga = bool(split_data_between_gp_and_ga)
         self.split_data_between_gp_and_ga_and_final_ga = bool(split_data_between_gp_and_ga_and_final_ga)
-        self.run_final_ga = bool(run_final_ga)
-        self.final_ga_maxtime = final_ga_maxtime
-        self.final_ga_population_size = final_ga_population_size
-        self.final_ga_num_generations = final_ga_num_generations
-        self.final_ga_patience = final_ga_patience
-        self.final_ga_retune_models = bool(final_ga_retune_models)
-        self.sticky_selected_features = bool(sticky_selected_features)
         self.estimate_pop_size = bool(estimate_pop_size)
         self.estimate_pop_seconds = int(estimate_pop_seconds)
 
@@ -233,6 +228,15 @@ class EvolutionaryOptimizer:
         self.ga_evolve_mutation_probability = bool(ga_evolve_mutation_probability)
         self.ga_mutation_probability_end = float(ga_mutation_probability_end)
         self.ga_crossover_type = str(ga_crossover_type).lower()
+
+        # Final GA params
+        self.run_final_ga = bool(run_final_ga)
+        self.final_ga_maxtime = final_ga_maxtime
+        self.final_ga_population_size = final_ga_population_size
+        self.final_ga_num_generations = final_ga_num_generations
+        self.final_ga_patience = final_ga_patience
+        self.final_ga_retune_models = bool(final_ga_retune_models)
+        self.sticky_selected_features = bool(sticky_selected_features)
 
         # RNG
         self.rng = np.random.default_rng(self.random_state)
