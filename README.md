@@ -49,22 +49,22 @@ print(report["selected_transformations"])
 ```
 
 Inputs should be numeric arrays. Encode categorical variables before calling
-`fit`. The experiment scripts in `examples/` show one way to prepare datasets.
+`fit`. EVOPT is not tied to the datasets in this repository; it can be applied
+to any tabular dataset once you have `X_train`, `y_train`, `X_test`, `y_test`,
+and optional `feature_names`.
 
 ## Examples
 
-Run a single dataset example:
+The files in `examples/` are runnable examples, not required entry points. They
+show how to prepare different public datasets and call `EvolutionaryOptimizer`.
+Use them as templates for your own datasets.
+
+Run one example at a time:
 
 ```bash
 python examples/california.py
 python examples/iris.py
 python examples/titanic.py
-```
-
-Run the full experiment runner:
-
-```bash
-python examples/experiment_runner.py
 ```
 
 Available dataset scripts:
