@@ -46,7 +46,6 @@ optimizer = EvolutionaryOptimizer(
     task_type="regression",
     metric_name="mse",
     models=["elastic_net", "decision_tree_regressor"],
-    random_state=1,
 )
 
 optimizer.fit(X_train, y_train, feature_names=feature_names)
@@ -73,8 +72,9 @@ population-size estimation, separate data splits for GP/GA/final GA, and a final
 GA pass to consolidate the selected feature set.
 
 In many cases, you only need to specify the task, metric, time budget, random
-seed, and optionally the model list. The lower-level GP and GA parameters can be
-left at their defaults until you have a specific reason to change them.
+and optionally the model list. Set `random_state` only when you need strict
+reproducibility. The lower-level GP and GA parameters can be left at their
+defaults until you have a specific reason to change them.
 
 The default optimizer is equivalent to:
 
@@ -225,8 +225,6 @@ from run_dataset import run_dataset
 run_dataset(
     "california",
     opt_kwargs={
-        "maxtime": 3600,
-        "random_state": 1,
         "verbose": True,
     },
 )
@@ -240,9 +238,7 @@ from run_dataset import run_dataset
 run_dataset(
     "iris",
     opt_kwargs={
-        "maxtime": 3600,
         "metric_name": "f1",
-        "random_state": 1,
         "verbose": True,
     },
 )
@@ -421,7 +417,6 @@ The defaults are the recommended starting point for real one-hour experiments:
 EvolutionaryOptimizer(
     task_type="regression",
     metric_name="mse",
-    random_state=1,
     verbose=True,
 )
 ```
@@ -432,7 +427,6 @@ For classification, switch only the task and metric:
 EvolutionaryOptimizer(
     task_type="classification",
     metric_name="f1",
-    random_state=1,
     verbose=True,
 )
 ```
