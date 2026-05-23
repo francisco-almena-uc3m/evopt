@@ -6,7 +6,13 @@ algorithms for feature selection.
 
 ## Installation
 
-Clone the repository and install the dependencies:
+Clone the repository and install it in editable mode:
+
+```bash
+pip install -e .
+```
+
+Alternatively, install the dependencies directly:
 
 ```bash
 pip install -r requirements.txt
@@ -22,6 +28,14 @@ python main.py
 ```
 
 `main.py` includes the dataset configurations used in the experiments.
+
+Each dataset also has its own script in `examples/`:
+
+```bash
+python examples/california.py
+python examples/iris.py
+python examples/titanic.py
+```
 
 ## Basic Usage
 
@@ -49,9 +63,10 @@ report = optimizer.report_final_selection(feature_names)
 - `ga_feature_selection/`: genetic algorithm feature selector.
 - `gp_feature_generation/`: genetic programming feature generator.
 - `model_utils.py`: model configuration, tuning, metrics, and evaluation helpers.
+- `main.py`: experiment runner and dataset preparation utilities.
+- `examples/`: one executable script per dataset configured in `main.py`.
 
 ## Notes
 
-- `xgboost` is optional at runtime unless you select XGBoost models.
 - Generated caches, local environments, and experiment outputs are ignored by
   Git through `.gitignore`.

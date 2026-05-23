@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evopt"
+version = "0.1.0"
+description = "Evolutionary feature optimization for tabular machine learning."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Francisco Almena" }
+]
+dependencies = [
+    "deap",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "xgboost",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[tool.setuptools]
+py-modules = ["evopt", "main", "model_utils"]
+packages = ["ga_feature_selection", "gp_feature_generation"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
