@@ -33,8 +33,6 @@ optimizer = EvolutionaryOptimizer(
     task_type="regression",
     metric_name="mse",
     models=["elastic_net", "decision_tree_regressor"],
-    maxtime=120,
-    num_iterations=3,
     random_state=1,
 )
 
@@ -205,7 +203,8 @@ default GP/GA configuration unless you pass `opt_kwargs` to `run_dataset`.
 Place snippets like the following inside `examples/`, or adapt the import path
 in your own project.
 
-For example, this is enough for a one-hour experiment on a regression dataset:
+For example, this is enough to run the default one-hour configuration on a
+regression dataset:
 
 ```python
 from run_dataset import run_dataset
@@ -237,8 +236,8 @@ run_dataset(
 ```
 
 The same pattern applies to your own data: prepare train/test arrays, choose the
-task and metric, set `maxtime=3600`, and leave the GP/GA internals at their
-defaults unless you are running an ablation or a very constrained benchmark.
+task and metric, and leave the GP/GA internals at their defaults unless you are
+running an ablation or a very constrained benchmark.
 
 ## Optimizer Parameters
 
@@ -403,8 +402,29 @@ Optional plots:
 
 ## Recommended Starting Points
 
-The defaults are the recommended starting point for real experiments. For quick
-checks, reduce the time budget and population sizes:
+The defaults are the recommended starting point for real one-hour experiments:
+
+```python
+EvolutionaryOptimizer(
+    task_type="regression",
+    metric_name="mse",
+    random_state=1,
+    verbose=True,
+)
+```
+
+For classification, switch only the task and metric:
+
+```python
+EvolutionaryOptimizer(
+    task_type="classification",
+    metric_name="f1",
+    random_state=1,
+    verbose=True,
+)
+```
+
+For quick smoke checks, reduce the time budget and population sizes:
 
 ```python
 EvolutionaryOptimizer(
@@ -419,37 +439,13 @@ EvolutionaryOptimizer(
 )
 ```
 
-For a one-hour run, keep the defaults and specify only the high-level choices:
-
-```python
-EvolutionaryOptimizer(
-    task_type="regression",
-    metric_name="mse",
-    maxtime=3600,
-    random_state=1,
-    verbose=True,
-)
-```
-
-For classification, switch only the task and metric:
-
-```python
-EvolutionaryOptimizer(
-    task_type="classification",
-    metric_name="f1",
-    maxtime=3600,
-    random_state=1,
-    verbose=True,
-)
-```
-
 Only start changing GP/GA internals when you need a faster benchmark, an
 ablation, or a deliberately different search behavior.
 
 ## Project Layout
 
 - `evopt/`: installable Python package.
-- `evopt/optimizer.py`: high-level evolutionary optimizer.
+- `evopt/evopt.py`: high-level evolutionary optimizer.
 - `evopt/model_utils.py`: model configuration, tuning, metrics, and evaluation.
 - `evopt/ga_feature_selection/`: GA feature selection internals.
 - `evopt/gp_feature_generation/`: GP feature generation internals.

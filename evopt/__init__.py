@@ -1,5 +1,5 @@
 """EVOPT public API."""
 
-from evopt.optimizer import EvolutionaryOptimizer
+from evopt.evopt import EvolutionaryOptimizer
 
 __all__ = ["EvolutionaryOptimizer"]
