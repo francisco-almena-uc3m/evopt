@@ -1,0 +1,6 @@
+deap
+matplotlib
+numpy
+pandas
+scikit-learn
+xgboost
