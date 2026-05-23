@@ -185,6 +185,7 @@ Use them as templates for your own datasets.
 Run one example at a time:
 
 ```bash
+python examples/quick_smoke.py
 python examples/california.py
 python examples/iris.py
 python examples/titanic.py
@@ -193,6 +194,7 @@ python examples/titanic.py
 Available dataset scripts:
 
 ```text
+quick_smoke
 adult
 airlines
 airfoil_self_noise
