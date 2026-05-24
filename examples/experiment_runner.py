@@ -1,3 +1,4 @@
+import argparse
 import io
 import math
 import urllib.request
@@ -37,9 +38,6 @@ from evopt.model_utils import (
 RANDOM_STATE = 1
 SHOW_PLOTS = False
 
-# =========================================
-#  Selección de dataset y experimentos
-# =========================================
 CLASSIFICATION_DATASETS = [
     "adult",
     "breast_cancer",
@@ -70,67 +68,7 @@ REGRESSION_DATASETS = [
     "superconduct",
 ]
 DATASETS = CLASSIFICATION_DATASETS + REGRESSION_DATASETS
-
-CLASSIFICATION_EXPERIMENTS = [
-    #{"label": "adult", "dataset": "adult", "opt_kwargs": {}},
-    #{"label": "airlines", "dataset": "airlines", "opt_kwargs": {}},
-    #{"label": "breast_cancer", "dataset": "breast_cancer", "opt_kwargs": {}},
-    #{"label": "churn", "dataset": "churn", "opt_kwargs": {}},
-    #{"label": "creditcard", "dataset": "creditcard", "opt_kwargs": {}},
-    #{"label": "credit_default", "dataset": "credit_default", "opt_kwargs": {}},
-    #{"label": "iris", "dataset": "iris", "opt_kwargs": {}},
-    #{"label": "letter", "dataset": "letter", "opt_kwargs": {}},
-    #{"label": "magic_telescope", "dataset": "magic_telescope", "opt_kwargs": {}},
-    #{"label": "online_shoppers", "dataset": "online_shoppers", "opt_kwargs": {}},
-    {"label": "poker-hand-training-true", "dataset": "poker-hand-training-true", "opt_kwargs": {}},
-    #{"label": "spam", "dataset": "spam", "opt_kwargs": {}},
-    #{"label": "titanic", "dataset": "titanic", "opt_kwargs": {}},
-    #{"label": "wine", "dataset": "wine", "opt_kwargs": {}},
-]
-
-REGRESSION_EXPERIMENTS = [
-    #{"label": "airfoil_self_noise", "dataset": "airfoil_self_noise", "opt_kwargs": {}},
-    #{"label": "bike_sharing_day", "dataset": "bike_sharing_day", "opt_kwargs": {}},
-    #{"label": "bike_sharing_hour", "dataset": "bike_sharing_hour", "opt_kwargs": {}},
-    #{"label": "california", "dataset": "california", "opt_kwargs": {}},
-    #{"label": "concrete_compressive_strength", "dataset": "concrete_compressive_strength", "opt_kwargs": {}},
-    #{"label": "energy_efficiency_cooling", "dataset": "energy_efficiency_cooling", "opt_kwargs": {}},
-    #{"label": "energy_efficiency_heating", "dataset": "energy_efficiency_heating", "opt_kwargs": {}},
-    #{"label": "online_news_popularity", "dataset": "online_news_popularity", "opt_kwargs": {}},
-    #{"label": "student_performance_math", "dataset": "student_performance_math", "opt_kwargs": {}},
-    #{"label": "student_performance_portuguese", "dataset": "student_performance_portuguese", "opt_kwargs": {}},
-    #{"label": "superconduct", "dataset": "superconduct", "opt_kwargs": {}},
-]
-
-EXPERIMENTS = CLASSIFICATION_EXPERIMENTS + REGRESSION_EXPERIMENTS
-
-#PEQUEÑOS
-#{"label": "breast_cancer", "dataset": "breast_cancer", "opt_kwargs": {}},                                          569   x 30 - 1730
-#{"label": "iris", "dataset": "iris", "opt_kwargs": {}},                                                            150   x 4  - 1999
-#{"label": "titanic", "dataset": "titanic", "opt_kwargs": {}},                                                      1309  x 13 - 1994
-#{"label": "wine", "dataset": "wine", "opt_kwargs": {}},                                                            178   x 13 -
-#{"label": "airfoil_self_noise", "dataset": "airfoil_self_noise", "opt_kwargs": {}},                                1503  x 5  - 2830
-#{"label": "bike_sharing_day", "dataset": "bike_sharing_day", "opt_kwargs": {}},                                    731   x 11 - 2832
-#{"label": "concrete_compressive_strength", "dataset": "concrete_compressive_strength", "opt_kwargs": {}},          1030  x 8  - 2492
-#{"label": "energy_efficiency_cooling", "dataset": "energy_efficiency_cooling", "opt_kwargs": {}},                  768   x 8  - 2841
-#{"label": "energy_efficiency_heating", "dataset": "energy_efficiency_heating", "opt_kwargs": {}},                  768   x 8  - 2841
-#{"label": "student_performance_math", "dataset": "student_performance_math", "opt_kwargs": {}},                    395   x 58 - 3230
-#{"label": "student_performance_portuguese", "dataset": "student_performance_portuguese", "opt_kwargs": {}},        649   x 58 - 2907
-
-#BIEN
-#{"label": "churn", "dataset": "churn", "opt_kwargs": {}},                                                          7043  x 45 - 711
-#{"label": "credit_default", "dataset": "credit_default", "opt_kwargs": {}},                                        30000 x 23 - 128
-#{"label": "magic_telescope", "dataset": "magic_telescope", "opt_kwargs": {}},                                      19020 x 10 - 219
-#{"label": "online_shoppers", "dataset": "online_shoppers", "opt_kwargs": {}},                                      12330 x 82 - 581
-#{"label": "spam", "dataset": "spam", "opt_kwargs": {}},                                                            4601  x 57 - 511
-#{"label": "bike_sharing_hour", "dataset": "bike_sharing_hour", "opt_kwargs": {}},                                  17379 x 12 - 500
-#{"label": "california", "dataset": "california", "opt_kwargs": {}},                                                20640 x 8  - 340
-
-#GRANDES
-#{"label": "adult", "dataset": "adult", "opt_kwargs": {}}                                                           48842 x 71 - 16
-#{"label": "letter", "dataset": "letter", "opt_kwargs": {}},                                                        20000 x 16 - 17 (multiclase)
-#{"label": "online_news_popularity", "dataset": "online_news_popularity", "opt_kwargs": {}}                         39644 x 59 - 61
-#{"label": "superconduct", "dataset": "superconduct", "opt_kwargs": {}}                                             21263 x 81 - 22
+DEFAULT_DATASETS = ("california",)
 
 
 MAX_CATEGORICAL_UNIQUE = 25
@@ -1211,27 +1149,6 @@ def compare_scores(
     return summary
 
 
-def _expand_experiments(
-    experiments: List[Dict[str, Any]],
-    default_dataset: Any,
-) -> List[Dict[str, Any]]:
-    expanded: List[Dict[str, Any]] = []
-    for exp in experiments:
-        dataset_value = exp.get("dataset", default_dataset)
-        if dataset_value is None:
-            dataset_value = default_dataset
-        if isinstance(dataset_value, (list, tuple, set)):
-            for dataset_key in dataset_value:
-                item = dict(exp)
-                item["dataset"] = dataset_key
-                expanded.append(item)
-        else:
-            item = dict(exp)
-            item["dataset"] = dataset_value
-            expanded.append(item)
-    return expanded
-
-
 def _prepare_experiment_data(dataset_key: str) -> Dict[str, Any]:
     df, task_type, target_col, numeric_cols, categorical_cols, data_source = _prepare_dataset(dataset_key)
     metric = get_task_metric(task_type)
@@ -1447,31 +1364,56 @@ def run_experiment(
     return summary
 
 
-def main():
+def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run EVOPT examples on one or more datasets.")
+    parser.add_argument(
+        "datasets",
+        nargs="*",
+        help="Dataset keys to run. Defaults to california.",
+    )
+    parser.add_argument(
+        "--list-datasets",
+        action="store_true",
+        help="Print available dataset keys and exit.",
+    )
+    parser.add_argument(
+        "--maxtime",
+        type=int,
+        default=None,
+        help="Override EVOPT global time budget in seconds.",
+    )
+    return parser.parse_args(argv)
+
+
+def _build_experiments(dataset_keys: List[str], maxtime: Optional[int]) -> List[Dict[str, Any]]:
+    opt_kwargs: Dict[str, Any] = {}
+    if maxtime is not None:
+        opt_kwargs["maxtime"] = maxtime
+    return [
+        {"label": dataset_key, "dataset": dataset_key, "opt_kwargs": dict(opt_kwargs)}
+        for dataset_key in dataset_keys
+    ]
+
+
+def main(argv: Optional[List[str]] = None):
+    args = _parse_args(argv)
+
+    if args.list_datasets:
+        print("\n".join(DATASETS))
+        return
+
+    dataset_keys = [str(key).lower() for key in (args.datasets or DEFAULT_DATASETS)]
+    unknown = [key for key in dataset_keys if key not in DATASETS]
+    if unknown:
+        raise ValueError(f"Datasets desconocidos: {unknown}. Opciones validas: {DATASETS}")
+
     log("Inicio de ejecucion")
-
-    experiments = EXPERIMENTS
-    if not EXPERIMENTS:
-        raise ValueError("EXPERIMENTS esta vacio. Define al menos un experimento.")
-
-    expanded_experiments = _expand_experiments(experiments, DATASETS)
-    if not expanded_experiments:
-        raise ValueError("No hay experimentos definidos.")
-
-    dataset_keys = []
-    for exp in expanded_experiments:
-        dataset_key = exp.get("dataset", DATASETS)
-        if dataset_key is None:
-            dataset_key = DATASETS
-        dataset_key = str(dataset_key).lower()
-        exp["dataset"] = dataset_key
-        dataset_keys.append(dataset_key)
-
+    experiments = _build_experiments(dataset_keys, args.maxtime)
     multi_dataset = len(set(dataset_keys)) > 1
     prepared = {}
     summaries = []
     failures = []
-    for exp in expanded_experiments:
+    for exp in experiments:
         dataset_key = str(exp.get("dataset", DATASETS)).lower()
         label = exp["label"]
         if multi_dataset:

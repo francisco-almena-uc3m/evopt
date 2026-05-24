@@ -323,6 +323,15 @@ python examples/iris.py
 python examples/titanic.py
 ```
 
+The shared runner can also execute any supported dataset key without editing
+the file:
+
+```bash
+python examples/experiment_runner.py california
+python examples/experiment_runner.py california iris --maxtime 300
+python examples/experiment_runner.py --list-datasets
+```
+
 Available dataset scripts:
 
 ```text
