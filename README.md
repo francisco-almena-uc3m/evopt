@@ -33,11 +33,12 @@ Install the project in editable mode from the repository root:
 pip install -e .
 ```
 
-To run the example scripts that evaluate XGBoost models, install the examples
-extra:
+The base installation does not require XGBoost. Install the XGBoost extra only
+if you want to use `xgb_regressor`, `xgb_classifier`, or run the example scripts
+without removing the XGBoost models from their evaluation list:
 
 ```bash
-pip install -e ".[examples]"
+pip install -e ".[xgboost]"
 ```
 
 Alternatively, install only the dependencies:
