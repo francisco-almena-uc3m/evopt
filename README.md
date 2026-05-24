@@ -58,7 +58,7 @@ pip install -r requirements.txt
 ```
 
 The examples use XGBoost as one of the evaluation models for comparing results.
-If you want to run the examples, install `requirements.txt` so that XGBoost is
+If you want to run the examples, install XGBoost so that it is
 available.
 
 After installation, use EVOPT from your own scripts or notebooks with:
