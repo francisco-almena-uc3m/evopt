@@ -51,17 +51,15 @@ pip install -e .
 ```
 
 If you prefer installing dependencies explicitly instead of installing the
-package, use:
+package, use the single requirements file:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-For examples that use XGBoost models:
-
-```bash
-pip install -r requirements-examples.txt
-```
+The examples use XGBoost as one of the evaluation models for comparing results.
+If you want to run the examples, install `requirements.txt` so that XGBoost is
+available.
 
 After installation, use EVOPT from your own scripts or notebooks with:
 
@@ -135,13 +133,14 @@ larger tabular datasets. The documented benchmark set ranges approximately from
 82 prepared variables (`online_shoppers`). It includes datasets such as:
 
 - Small datasets: `iris`, `wine`, `breast_cancer`, `titanic`,
-  `airfoil_self_noise`, `bike_sharing_day`, `energy_efficiency_*`,
-  `student_performance_*`.
+  `airfoil_self_noise`, `bike_sharing_day`, `energy_efficiency_cooling`,
+  `energy_efficiency_heating`, `student_performance_math`,
+  `student_performance_portuguese`.
 - Medium datasets: `churn`, `spam`, `magic_telescope`, `online_shoppers`,
   `bike_sharing_hour`, `california`, `concrete_compressive_strength`.
 - Larger datasets: `adult`, `credit_default`, `letter`,
-  `online_news_popularity`, `superconduct`, and other externally loaded
-  examples such as `airlines`, `creditcard`, and `poker-hand-training-true`.
+  `online_news_popularity`, `superconduct`, `airlines`, `creditcard`, and
+  `poker-hand-training-true`.
 
 The defaults are deliberately conservative:
 
@@ -515,9 +514,7 @@ Constants can be controlled with:
 - `evopt/gp_feature_generation/`: GP feature generation internals.
 - `examples/`: dataset preparation and runnable examples.
 - `pyproject.toml`: package metadata.
-- `requirements.txt`: base dependency list.
-- `requirements-examples.txt`: extra dependency list for example scripts that
-  use XGBoost models.
+- `requirements.txt`: dependency list for the library and example scripts.
 - `tests/`: minimal regression smoke tests for the public API.
 - `.github/workflows/ci.yml`: GitHub Actions test workflow.
 
