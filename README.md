@@ -3,21 +3,27 @@
 [![CI](https://github.com/francisco-almena-uc3m/evopt/actions/workflows/ci.yml/badge.svg)](https://github.com/francisco-almena-uc3m/evopt/actions/workflows/ci.yml)
 
 EVOPT is an evolutionary feature optimization library for tabular machine
-learning. It combines genetic programming (GP) for feature generation with
-genetic algorithms (GA) for feature selection.
+learning. Its purpose is to improve the input feature space before training a
+supervised model.
 
-The goal is to improve a tabular dataset before fitting downstream machine
-learning models. EVOPT searches for useful mathematical transformations of the
-original variables, keeps the generated features that are actually helpful, and
-selects a compact final feature set containing both original and generated
-features. The search is evaluated with standard supervised models and
-cross-validation, so the generated variables are optimized for predictive
-performance rather than only for statistical correlation.
+Many tabular problems contain useful relationships that are not present as
+explicit columns: ratios, products, protected logarithms, nonlinear rescalings,
+interactions between variables, or compact subsets of the original feature set.
+EVOPT searches for these improvements automatically. It uses genetic programming
+(GP) to generate candidate mathematical transformations and genetic algorithms
+(GA) to select which original and generated features should remain.
 
-The library supports regression and classification tasks. It is designed to be
-used like a scikit-learn-style transformer: call `fit` on training data,
-`transform` train/test matrices, and inspect the final selected variables and
-generated expressions with `report_final_selection`.
+The optimizer is evaluated through supervised models and cross-validation. That
+means generated features are not kept simply because they look statistically
+interesting; they are kept when they help predictive performance under the
+chosen task, metric, and model family. The final result is a transformed matrix
+that can be passed to downstream machine learning models, plus a report showing
+which original variables were kept and which generated expressions were selected.
+
+EVOPT supports regression and classification. It is designed to be used as a
+library, not as code that must be edited internally: prepare your own tabular
+data, instantiate `EvolutionaryOptimizer`, call `fit`, call `transform`, and
+inspect the final report.
 
 The public API is:
 
@@ -27,10 +33,26 @@ from evopt import EvolutionaryOptimizer
 
 ## Installation
 
-Install the project in editable mode from the repository root:
+To use EVOPT directly from GitHub:
+
+```bash
+pip install "evopt @ git+https://github.com/francisco-almena-uc3m/evopt.git"
+```
+
+If you have cloned the repository locally, install it from the repository root:
 
 ```bash
 pip install -e .
+```
+
+The `-e` flag means "editable install": Python imports the package from your
+local checkout. You do not need to edit EVOPT internals to use it; this mode is
+just convenient while working from a cloned repository.
+
+After installation, use EVOPT from your own scripts or notebooks with:
+
+```python
+from evopt import EvolutionaryOptimizer
 ```
 
 The base installation does not require XGBoost. Install the XGBoost extra only
@@ -38,16 +60,36 @@ if you want to use `xgb_regressor`, `xgb_classifier`, or run the example scripts
 without removing the XGBoost models from their evaluation list:
 
 ```bash
+pip install "evopt[xgboost] @ git+https://github.com/francisco-almena-uc3m/evopt.git"
+```
+
+or, from a local checkout:
+
+```bash
 pip install -e ".[xgboost]"
 ```
 
-Alternatively, install only the dependencies:
+For development and tests:
 
 ```bash
-pip install -r requirements.txt
+pip install -e ".[dev]"
+pytest -q
 ```
 
-## Basic Usage
+## Applying EVOPT
+
+EVOPT works on numeric matrices. If your dataset has categorical variables,
+encode them before calling `fit` (for example with one-hot encoding). A typical
+workflow is:
+
+1. Prepare `X_train`, `y_train`, `X_test`, `y_test`.
+2. Keep a list of `feature_names` if you want readable reports.
+3. Choose `task_type` and optionally `metric_name` and `models`.
+4. Fit EVOPT on the training data.
+5. Transform train/test matrices.
+6. Train or evaluate downstream models on the transformed matrices.
+
+Minimal example:
 
 ```python
 from evopt import EvolutionaryOptimizer
@@ -55,7 +97,6 @@ from evopt import EvolutionaryOptimizer
 optimizer = EvolutionaryOptimizer(
     task_type="regression",
     metric_name="mse",
-    models=["elastic_net", "decision_tree_regressor"],
 )
 
 optimizer.fit(X_train, y_train, feature_names=feature_names)
@@ -68,23 +109,55 @@ print(report["selected_originals"])
 print(report["selected_transformations"])
 ```
 
-Inputs should be numeric arrays. Encode categorical variables before calling
-`fit`. EVOPT is not tied to the datasets in this repository; it can be applied
-to any tabular dataset once you have `X_train`, `y_train`, `X_test`, `y_test`,
-and optional `feature_names`.
+For classification:
+
+```python
+optimizer = EvolutionaryOptimizer(
+    task_type="classification",
+    metric_name="f1",
+)
+```
+
+EVOPT is not tied to the datasets in this repository. The examples are only
+templates showing how different public datasets can be loaded and prepared.
 
 ## Default Configuration
 
-EVOPT is designed to be useful without tuning every evolutionary parameter. The
-default configuration is intentionally conservative: it uses simple, robust
-model families, bounded GP trees, cross-validation inside GP and GA, automatic
-population-size estimation, separate data splits for GP/GA/final GA, and a final
-GA pass to consolidate the selected feature set.
+The default configuration is intended to be a practical one-hour experiment.
+It was established by testing EVOPT across the datasets included in `examples/`,
+with the goal of improving predictive performance while keeping the search
+bounded and usable across different tabular settings.
 
-In many cases, you only need to specify the task, metric, time budget, and
-optionally the model list. Set `random_state` only when you need strict
-reproducibility. The lower-level GP, GA, and final GA parameters can be left at
-their defaults until you have a specific reason to change them.
+The example suite covers both regression and classification, including binary
+classification, multiclass classification, small datasets, medium datasets and
+larger tabular datasets. The documented benchmark set ranges approximately from
+150 rows and 4 variables (`iris`) to tens of thousands of rows and up to around
+82 prepared variables (`online_shoppers`). It includes datasets such as:
+
+- Small datasets: `iris`, `wine`, `breast_cancer`, `titanic`,
+  `airfoil_self_noise`, `bike_sharing_day`, `energy_efficiency_*`,
+  `student_performance_*`.
+- Medium datasets: `churn`, `spam`, `magic_telescope`, `online_shoppers`,
+  `bike_sharing_hour`, `california`, `concrete_compressive_strength`.
+- Larger datasets: `adult`, `credit_default`, `letter`,
+  `online_news_popularity`, `superconduct`, and other externally loaded
+  examples such as `airlines`, `creditcard`, and `poker-hand-training-true`.
+
+The defaults are deliberately conservative:
+
+- One-hour global time budget: `maxtime=3600`.
+- Bounded GP trees: default depth from 1 to 2.
+- Cross-validation inside GP and GA.
+- Automatic GP/GA population-size estimation.
+- Separate data usage for GP, GA and final GA by default.
+- A final GA stage to consolidate the retained original and generated features.
+- Simple default model families to avoid overfitting the search to a single
+  complex estimator.
+
+In many cases, you only need to specify the task and metric. Set `random_state`
+only when you need strict reproducibility. Change lower-level GP, GA and final
+GA parameters only when you need a faster benchmark, an ablation, or a different
+search behavior.
 
 The default optimizer is equivalent to:
 
@@ -168,7 +241,25 @@ EvolutionaryOptimizer(
 )
 ```
 
-When `models=None`, EVOPT chooses:
+For a five-minute smoke check, use:
+
+```python
+EvolutionaryOptimizer(
+    task_type="regression",
+    maxtime=300,
+    num_iterations=3,
+    estimate_pop_size=False,
+    gp_population_size=20,
+    ga_population_size=20,
+    gp_num_generations=5,
+    ga_num_generations=5,
+)
+```
+
+## Models
+
+When `models=None`, EVOPT uses two default model families during the
+evolutionary search:
 
 ```python
 {
@@ -176,6 +267,47 @@ When `models=None`, EVOPT chooses:
     "classification": ["logistic_regression", "decision_tree_classifier"],
 }
 ```
+
+These defaults were chosen to combine a simple linear model with a simple
+nonlinear tree model. The intent is to reward generated/selected features that
+are useful under different inductive biases without making the search too slow.
+
+The experiment runner evaluates the final result with a broader set of models.
+Those evaluation models are not the default search models; they are used to
+compare original data versus transformed data more broadly.
+
+Regression evaluation models:
+
+```text
+linear_regression
+ridge
+lasso
+elastic_net
+knn_regressor
+decision_tree_regressor
+random_forest_regressor
+xgb_regressor
+svr
+mlp_regressor
+```
+
+Classification evaluation models:
+
+```text
+logistic_regression
+gaussian_nb
+lda
+qda
+knn_classifier
+decision_tree_classifier
+random_forest_classifier
+xgb_classifier
+svc
+mlp_classifier
+```
+
+XGBoost is optional for the base package. Install `.[xgboost]` if you want to
+use `xgb_regressor` or `xgb_classifier`.
 
 ## Examples
 
@@ -224,12 +356,9 @@ wine
 ```
 
 The example files only choose the dataset. The actual optimization keeps the
-default GP/GA configuration unless you pass `opt_kwargs` to `run_dataset`.
-Place snippets like the following inside `examples/`, or adapt the import path
-in your own project.
-
-For example, this is enough to run the default one-hour configuration on a
-regression dataset:
+default GP/GA/final-GA configuration unless you pass `opt_kwargs` to
+`run_dataset`. Place snippets like the following inside `examples/`, or adapt
+the import path in your own project:
 
 ```python
 from run_dataset import run_dataset
@@ -242,23 +371,23 @@ run_dataset(
 )
 ```
 
-For a classification dataset:
+## Outputs
 
-```python
-from run_dataset import run_dataset
+After `fit`, use:
 
-run_dataset(
-    "iris",
-    opt_kwargs={
-        "metric_name": "f1",
-        "verbose": True,
-    },
-)
-```
+- `transform(X)`: returns the selected original features plus generated GP
+  features.
+- `report_final_selection(feature_names)`: returns selected original feature
+  names, generated transformations, raw expressions, dependencies, metric name,
+  and final score.
+- `history()`: returns iteration history.
+- `kept_expressions()`: returns retained GP expressions.
 
-The same pattern applies to your own data: prepare train/test arrays, choose the
-task and metric, and leave the GP/GA internals at their defaults unless you are
-running an ablation or a very constrained benchmark.
+Optional plots:
+
+- `plot_history()`
+- `plot_feature_evolution_history(feature_names)`
+- `plot_feature_dependency_matrix(feature_names)`
 
 ## Optimizer Parameters
 
@@ -268,8 +397,7 @@ running an ablation or a very constrained benchmark.
 - `metric_name`: metric optimized internally. Regression: `"mse"`, `"mae"`.
   Classification: `"f1"`, `"accuracy"`, `"auc"`.
 - `models`: model names used to evaluate candidate feature sets. If omitted,
-  defaults are `["elastic_net", "decision_tree_regressor"]` for regression and
-  `["logistic_regression", "decision_tree_classifier"]` for classification.
+  EVOPT uses the default search models described above.
 - `maxtime`: global time budget in seconds.
 - `num_iterations`: number of GP + GA cycles.
 - `random_state`: seed for reproducibility.
@@ -370,97 +498,6 @@ Constants can be controlled with:
 - `sticky_selected_features`: keeps selected GP features across iterations
   before the final selection stage.
 
-## Supported Models
-
-Regression:
-
-```text
-linear_regression
-ridge
-lasso
-elastic_net
-knn_regressor
-decision_tree_regressor
-random_forest_regressor
-xgb_regressor
-svr
-mlp_regressor
-```
-
-Classification:
-
-```text
-logistic_regression
-gaussian_nb
-lda
-qda
-knn_classifier
-decision_tree_classifier
-random_forest_classifier
-xgb_classifier
-svc
-mlp_classifier
-```
-
-## Outputs
-
-After `fit`, use:
-
-- `transform(X)`: returns the selected original features plus generated GP
-  features.
-- `report_final_selection(feature_names)`: returns selected original feature
-  names, generated transformations, raw expressions, dependencies, metric name,
-  and final score.
-- `history()`: returns iteration history.
-- `kept_expressions()`: returns retained GP expressions.
-
-Optional plots:
-
-- `plot_history()`
-- `plot_feature_evolution_history(feature_names)`
-- `plot_feature_dependency_matrix(feature_names)`
-
-## Recommended Starting Points
-
-The defaults are the recommended starting point for real one-hour experiments:
-
-```python
-EvolutionaryOptimizer(
-    task_type="regression",
-    metric_name="mse",
-    verbose=True,
-)
-```
-
-For classification, switch only the task and metric:
-
-```python
-EvolutionaryOptimizer(
-    task_type="classification",
-    metric_name="f1",
-    verbose=True,
-)
-```
-
-For quick smoke checks, use a smaller five-minute budget and reduced population
-sizes:
-
-```python
-EvolutionaryOptimizer(
-    task_type="regression",
-    maxtime=300,
-    num_iterations=3,
-    estimate_pop_size=False,
-    gp_population_size=20,
-    ga_population_size=20,
-    gp_num_generations=5,
-    ga_num_generations=5,
-)
-```
-
-Only start changing GP/GA internals when you need a faster benchmark, an
-ablation, or a deliberately different search behavior.
-
 ## Project Layout
 
 - `evopt/`: installable Python package.
@@ -474,22 +511,6 @@ ablation, or a deliberately different search behavior.
 - `tests/`: minimal regression smoke tests for the public API.
 - `.github/workflows/ci.yml`: GitHub Actions test workflow.
 
-## Development
-
-Install development dependencies:
-
-```bash
-pip install -e ".[dev]"
-```
-
-Run the test suite:
-
-```bash
-pytest -q
-```
-
-The CI workflow runs the same tests on Python 3.10 and 3.12.
-
 ## License
 
 This project is distributed under the MIT License. See `LICENSE`.
@@ -498,7 +519,5 @@ This project is distributed under the MIT License. See `LICENSE`.
 
 - Some example datasets are downloaded from OpenML or external URLs.
 - Large datasets and long configurations can take a long time.
-- XGBoost is optional for the base package, but required when selecting
-  `xgb_regressor`, `xgb_classifier`, or running the example suite as written.
 - Generated caches, local environments, and experiment outputs are ignored by
   Git through `.gitignore`.
