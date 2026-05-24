@@ -20,10 +20,15 @@ chosen task, metric, and model family. The final result is a transformed matrix
 that can be passed to downstream machine learning models, plus a report showing
 which original variables were kept and which generated expressions were selected.
 
-EVOPT supports regression and classification. It is designed to be used as a
-library, not as code that must be edited internally: prepare your own tabular
-data, instantiate `EvolutionaryOptimizer`, call `fit`, call `transform`, and
-inspect the final report.
+EVOPT supports regression and classification and follows a scikit-learn-style
+workflow: instantiate `EvolutionaryOptimizer`, call `fit` on training data, use
+`transform` to obtain the optimized feature matrix, and inspect the final report
+when you want to understand which features were selected.
+
+The default configuration is intended to work directly in many tabular
+problems. It provides a one-hour evolutionary search budget and a balanced GP +
+GA setup. The parameters remain fully configurable when you need a faster run,
+a stricter benchmark, or a different search behavior.
 
 The public API is:
 
@@ -33,40 +38,22 @@ from evopt import EvolutionaryOptimizer
 
 ## Installation
 
-To use EVOPT directly from GitHub:
+Install EVOPT directly from GitHub:
 
 ```bash
 pip install "evopt @ git+https://github.com/francisco-almena-uc3m/evopt.git"
 ```
 
-If you have cloned the repository locally, install it from the repository root:
+Or install it from a local clone:
 
 ```bash
 pip install -e .
 ```
 
-The `-e` flag means "editable install": Python imports the package from your
-local checkout. You do not need to edit EVOPT internals to use it; this mode is
-just convenient while working from a cloned repository.
-
 After installation, use EVOPT from your own scripts or notebooks with:
 
 ```python
 from evopt import EvolutionaryOptimizer
-```
-
-The base installation does not require XGBoost. Install the XGBoost extra only
-if you want to use `xgb_regressor`, `xgb_classifier`, or run the example scripts
-without removing the XGBoost models from their evaluation list:
-
-```bash
-pip install "evopt[xgboost] @ git+https://github.com/francisco-almena-uc3m/evopt.git"
-```
-
-or, from a local checkout:
-
-```bash
-pip install -e ".[xgboost]"
 ```
 
 For development and tests:
@@ -306,8 +293,7 @@ svc
 mlp_classifier
 ```
 
-XGBoost is optional for the base package. Install `.[xgboost]` if you want to
-use `xgb_regressor` or `xgb_classifier`.
+The `xgb_regressor` and `xgb_classifier` options require XGBoost.
 
 ## Examples
 
