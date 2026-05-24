@@ -50,6 +50,19 @@ Or install it from a local clone:
 pip install -e .
 ```
 
+If you prefer installing dependencies explicitly instead of installing the
+package, use:
+
+```bash
+pip install -r requirements.txt
+```
+
+For examples that use XGBoost models:
+
+```bash
+pip install -r requirements-examples.txt
+```
+
 After installation, use EVOPT from your own scripts or notebooks with:
 
 ```python
@@ -493,7 +506,9 @@ Constants can be controlled with:
 - `evopt/gp_feature_generation/`: GP feature generation internals.
 - `examples/`: dataset preparation and runnable examples.
 - `pyproject.toml`: package metadata.
-- `requirements.txt`: dependency list for simple installation.
+- `requirements.txt`: base dependency list.
+- `requirements-examples.txt`: extra dependency list for example scripts that
+  use XGBoost models.
 - `tests/`: minimal regression smoke tests for the public API.
 - `.github/workflows/ci.yml`: GitHub Actions test workflow.
 
